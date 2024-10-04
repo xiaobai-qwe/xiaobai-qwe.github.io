@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单论坛</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .comment-section {
+            margin-top: 20px;
+        }
+        .comment {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .comment-content {
+            margin-top: 5px;
+        }
+        .delete-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>论坛</h1>
+    
+    <form id="commentForm">
+        <div class="form-group">
+            <label for="author">姓名:</label>
+            <input type="text" id="author" required>
+        </div>
+        <div class="form-group">
+            <label for="comment">评论内容:</label>
+            <textarea id="comment" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit">提交评论</button>
+        </div>
+    </form>
+
+    <div class="comment-section" id="commentSection">
+        <!-- 评论将被添加到这里 -->
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('commentForm');
+    const commentSection = document.getElementById('commentSection');
+
+    // 从 localStorage 读取已保存的评论
+    const comments = JSON.parse(localStorage.getItem('comments')) || [];
+
+    // 渲染已有评论
+    function renderComments() {
+        commentSection.innerHTML = ''; // 清空评论区
+        comments.forEach((comment, index) => {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'comment-author';
+            authorDiv.textContent = `姓名: ${comment.author}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'comment-content';
+            contentDiv.textContent = `评论: ${comment.content}`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.textContent = '删除';
+            deleteButton.onclick = function() {
+                deleteComment(index);
+            };
+
+            commentDiv.appendChild(authorDiv);
+            commentDiv.appendChild(contentDiv);
+            commentDiv.appendChild(deleteButton);
+            commentSection.appendChild(commentDiv);
+        });
+    }
+
+    // 删除评论
+    function deleteComment(index) {
+        comments.splice(index, 1); // 从数组中移除评论
+        localStorage.setItem('comments', JSON.stringify(comments)); // 更新 localStorage
+        renderComments(); // 重新渲染评论
+    }
+
+    // 初始化渲染评论
+    renderComments();
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const author = document.getElementById('author').value;
+        const comment = document.getElementById('comment').value;
+
+        // 添加新评论至数组
+        comments.push({ author, content: comment });
+        
+        // 保存评论到 localStorage
+        localStorage.setItem('comments', JSON.stringify(comments));
+
+        // 重新渲染评论
+        renderComments();
+
+        // 重置表单
+        form.reset();
+    });
+</script>
+
+</body>
+</html>
